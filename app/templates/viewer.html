@@ -1,13 +1,10 @@
 <!DOCTYPE html>
-<html lang="pl">
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
   <title>Chess Game Viewer</title>
-
-  <!-- Twoje lokalne style -->
   <link rel="stylesheet" href="/static/css/chessboard.min.css" />
   <link rel="stylesheet" href="/static/css/viewer.css" />
-  
 </head>
 <body>
   <h2>Chess Game Viewer</h2>
@@ -18,38 +15,11 @@
   <div style="text-align:center; margin-top: 20px;">
     <button id="prevBtn">Prev</button>
     <button id="nextBtn">Next</button>
-    <button id="stopStockfishBtn">Stop Stockfish</button>
   </div>
 
-  <!-- Twoje lokalne biblioteki JS -->
-  <script src="/static/js/chess.js"></script>
   <script src="/static/js/jquery.min.js"></script>
+  <script src="/static/js/chess.js"></script>
   <script src="/static/js/chessboard.min.js"></script>
   <script src="/static/js/main.js"></script>
-
-  <script>
-    document.addEventListener("DOMContentLoaded", () => {
-      board = Chessboard("board", {
-        position: "start",
-        pieceTheme: "/static/img/chesspieces/wikipedia/{piece}.png"
-      });
-      game = new Chess();
-    });
-
-    window.addEventListener("load", () => {
-      fetch("/start_stockfish").then(res => res.json()).then(console.log);
-    });
-
-    window.addEventListener("beforeunload", () => {
-    if (navigator.sendBeacon) {
-        navigator.sendBeacon("/stop_stockfish", "");
-    } else {
-        const xhr = new XMLHttpRequest();
-        xhr.open("POST", "/stop_stockfish", false);
-        xhr.send();
-    }
-    });
-
-  </script>
 </body>
 </html>
