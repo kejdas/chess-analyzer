@@ -1,10 +1,6 @@
-
 import os
 from flask import Blueprint, render_template, jsonify, request
 import chess.pgn
-import threading
-import queue
-import time
 from stockfish import Stockfish
 
 from dotenv import load_dotenv
@@ -72,6 +68,18 @@ def load_game():
     with open(game_path, "r") as f:
         game = chess.pgn.read_game(f)
 
+    # Extract player nicknames and opening info from PGN tags
+    white = game.headers.get("White", "White")
+    black = game.headers.get("Black", "Black")
+    opening_name = game.headers.get("ECOUrl", None)
+    opening = {
+        "name": game.headers.get("ECO", ""),
+        "url": game.headers.get("ECOUrl", "")
+    }
+    # If opening name is not present, fallback to ECO code
+    if not opening["name"]:
+        opening["name"] = game.headers.get("Opening", "")
+
     moves = []
     board = game.board()
     for move in game.mainline_moves():
@@ -81,7 +89,16 @@ def load_game():
             "move": san,
             "fen": board.fen()
         })
-    return jsonify(moves)
+
+    return jsonify({
+        "moves": moves,
+        "white": white,
+        "black": black,
+        "opening": {
+            "name": game.headers.get("ECO", ""),
+            "url": game.headers.get("ECOUrl", "")
+        }
+    })
 
 @main.route("/analyze_fen", methods=["POST"])
 def analyze_fen_route():

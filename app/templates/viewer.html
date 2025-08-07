@@ -5,17 +5,78 @@
   <title>Chess Game Viewer</title>
   <link rel="stylesheet" href="/static/css/chessboard.min.css" />
   <link rel="stylesheet" href="/static/css/viewer.css" />
+  <style>
+    .player-info { display: flex; justify-content: space-between; margin-bottom: 10px; }
+    .turn-indicator { font-weight: bold; }
+    .captured { min-height: 24px; }
+    .eval-bar-container { width: 20px; height: 300px; background: #eee; border-radius: 10px; margin: 0 20px; position: relative; }
+    .eval-bar { position: absolute; left: 0; width: 100%; background: linear-gradient(to top, #222 0%, #fff 100%); border-radius: 10px; }
+    .opening-link { font-size: 0.95em; }
+    .accuracy-table { width: 100%; margin-top: 10px; border-collapse: collapse; }
+    .accuracy-table th, .accuracy-table td { border: 1px solid #ccc; padding: 4px 8px; text-align: center; }
+  </style>
 </head>
 <body>
   <h2>Chess Game Viewer</h2>
 
-  <div id="board"></div>
+  <!-- Player Info and Opening -->
+  <div class="player-info">
+    <div>
+      <span id="white-nick" style="color:#222; font-weight:bold;">White</span>
+      <div class="captured" id="white-captured"></div>
+    </div>
+    <div>
+      <span id="turn-indicator" class="turn-indicator">White to move</span>
+      <div id="opening-info">
+        Opening: <span id="opening-name">-</span>
+        <a id="opening-link" class="opening-link" href="#" target="_blank" style="display:none;">Learn more</a>
+      </div>
+    </div>
+    <div>
+      <span id="black-nick" style="color:#444; font-weight:bold;">Black</span>
+      <div class="captured" id="black-captured"></div>
+    </div>
+  </div>
+
+  <div style="display:flex; justify-content:center; align-items:center;">
+    <div class="eval-bar-container">
+      <div id="eval-bar" class="eval-bar" style="bottom:0; height:50%;"></div>
+    </div>
+    <div id="board"></div>
+  </div>
+
   <div id="info" style="text-align:center; margin-top: 10px;">Info will appear here</div>
 
   <div style="text-align:center; margin-top: 20px;">
     <button id="prevBtn">Prev</button>
     <button id="nextBtn">Next</button>
   </div>
+
+  <!-- Accuracy/Blunder Table -->
+  <table class="accuracy-table">
+    <thead>
+      <tr>
+        <th></th>
+        <th>Blunders</th>
+        <th>Inaccuracies</th>
+        <th>Accuracy (%)</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td id="white-nick-acc">White</td>
+        <td id="white-blunders">0</td>
+        <td id="white-inacc">0</td>
+        <td id="white-acc">-</td>
+      </tr>
+      <tr>
+        <td id="black-nick-acc">Black</td>
+        <td id="black-blunders">0</td>
+        <td id="black-inacc">0</td>
+        <td id="black-acc">-</td>
+      </tr>
+    </tbody>
+  </table>
 
   <script src="/static/js/jquery.min.js"></script>
   <script src="/static/js/chess.js"></script>
