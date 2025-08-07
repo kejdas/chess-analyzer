@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8" />
+  <title>Chess Game Viewer</title>
+
+  <!-- Twoje lokalne style -->
+  <link rel="stylesheet" href="/static/css/chessboard.min.css" />
+  <link rel="stylesheet" href="/static/css/viewer.css" />
+  
+</head>
+<body>
+  <h2>Chess Game Viewer</h2>
+
+  <div id="board"></div>
+  <div id="info" style="text-align:center; margin-top: 10px;">Info will appear here</div>
+
+  <div style="text-align:center; margin-top: 20px;">
+    <button id="prevBtn">Prev</button>	 
+    <button id="nextBtn">Next</button>
+  </div>
+
+  <!-- Twoje lokalne biblioteki JS -->
+  <script src="/static/js/chess.js"></script>
+  <script src="/static/js/jquery.min.js"></script>
+  <script src="/static/js/chessboard.min.js"></script>
+  <script src="/static/js/main.js"></script>
+
+  <script>
+    // Inicjalizacja planszy od razu po załadowaniu strony
+    document.addEventListener("DOMContentLoaded", () => {
+      board = Chessboard("board", {
+ 	 position: "start",
+  	pieceTheme: "/static/img/chesspieces/wikipedia/{piece}.png"
+      });
+      game = new Chess(); // Inicjalizacja gry szachowej
+      // Opcjonalnie możesz od razu załadować jakąś grę, np:
+      // loadGame("orzelmocnygaz", "2021-02", "orzelmocnygaz_game_1.pgn");
+    });
+  </script>
+</body>
+</html>
+

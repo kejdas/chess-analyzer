@@ -1,0 +1,84 @@
+import os
+from flask import Blueprint, render_template, jsonify, request
+import chess.pgn
+from .utils.stockfish import analyze_with_stockfish
+from stockfish import Stockfish
+
+GAMES_DIR = "/root/chess-api/games"
+
+main = Blueprint("main",__name__)
+
+@main.route("/")
+def index():
+    players = {}
+
+    for player in os.listdir(GAMES_DIR):
+        player_path = os.path.join(GAMES_DIR, player)
+        if not os.path.isdir(player_path):
+            continue
+        players[player] = {}
+        for date in os.listdir(player_path):
+            date_path = os.path.join(player_path, date)
+            if not os.path.isdir(date_path):
+                continue
+            players[player][date] = [
+                f for f in os.listdir(date_path) if f.endswith(".pgn")
+
+            ]
+
+    return render_template("index.html", players=players)
+
+@main.route("/viewer")
+def viewer():
+    player = request.args.get("player")
+    date = request.args.get("date")
+    file = request.args.get("file")
+    if not player or not date or not file:
+        return "Missing parameters", 400
+    
+    # Możesz tu dodać sprawdzenie czy plik istnieje itd.
+    
+    return render_template("viewer.html", player=player, date=date, filename=file)
+
+@main.route("/load_game", methods=["POST"])
+def load_game():
+    data = request.get_json()
+    player = data["player"]
+    date = data["date"]
+    filename = data["filename"]
+
+    game_path = os.path.join(GAMES_DIR, player, date, filename)
+
+    if not os.path.exists(game_path):
+        return jsonify({"error": "Game not found"}), 404
+
+    with open(game_path, "r") as f:
+        game = chess.pgn.read_game(f)
+
+    moves = []
+    board = game.board()
+    for move in game.mainline_moves():
+        san = board.san(move)
+        board.push(move)
+        moves.append({
+            "move": san,
+            "fen": board.fen()
+        })
+    return jsonify(moves)
+
+@main.route("/analyze_fen", methods=["POST"])
+def analyze_fen_route():
+    try:
+        data = request.get_json()
+        fen = data.get("fen")
+        if not fen:
+            return jsonify({"error": "Missing FEN"}), 400
+
+        print(f"[DEBUG] Received FEN: {fen}")
+        result = analyze_with_stockfish(fen)
+        print(f"[DEBUG] Analysis result: {result}")
+        return jsonify(result)
+    except Exception as e:
+        print(f"[ERROR] /analyze_fen failed: {e}")
+        return jsonify({"error": str(e)}), 500
+

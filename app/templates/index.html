@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Chess Game Browser</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+  <h1>Chess Games</h1>
+  {% for player, dates in players.items() %}
+    <h2>{{ player }}</h2>
+    <ul>
+      {% for date, files in dates.items() %}
+        <li><strong>{{ date }}</strong>
+          <ul>
+            {% for f in files %}
+              <li>
+                <a href="/viewer?player={{ player }}&date={{ date }}&file={{ f }}">{{ f }}</a>
+              </li>
+            {% endfor %}
+          </ul>
+        </li>
+      {% endfor %}
+    </ul>
+  {% endfor %}
+</body>
+</html>
+

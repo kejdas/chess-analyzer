@@ -1,0 +1,62 @@
+import subprocess
+
+STOCKFISH_PATH = "/usr/games/stockfish"
+
+def analyze_with_stockfish(fen, depth=15):
+    try:
+        process = subprocess.Popen(
+            [STOCKFISH_PATH],
+            stdin=subprocess.PIPE,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=True
+        )
+        commands = [
+            f"position fen {fen}\n",
+            f"go depth {depth}\n"
+        ]
+
+        output = ""
+        for cmd in commands:
+            process.stdin.write(cmd)
+        process.stdin.flush()
+
+        while True:
+            line = process.stdout.readline()
+            if "bestmove" in line:
+                output += line
+                break
+            output += line
+
+        # Properly terminate the engine process after use
+        process.stdin.write("quit\n")
+        process.stdin.flush()
+        process.wait(timeout=1)
+
+        # Parse output as before...
+        lines = output.split("\n")
+        best_move = None
+        eval_score = None
+
+        for line in lines:
+            if "info depth" in line and "score" in line:
+                if "cp" in line:
+                    eval_score = int(line.split("cp")[1].split()[0]) / 100
+                elif "mate" in line:
+                    eval_score = f"mate {line.split('mate')[1].split()[0]}"
+            if "bestmove" in line:
+                best_move = line.split("bestmove")[1].split()[0]
+
+        return {
+            "score": eval_score,
+            "best_move": best_move
+        }
+
+    except Exception as e:
+        # Ensure process is terminated if an error occurs
+        try:
+            process.kill()
+        except Exception:
+            pass
+        return {"error": str(e)}
+
